@@ -74,9 +74,32 @@ int main(int argc, char* argv[])
     
 
     std::string line = "";
-    ifstream myfile(filename);
-    stringstream ss
+    std::ifstream file(filename);
+    std::stringstream ss;
+    int width,height;
 
+    getline(file,line);
+    if(line.compare("P2") != 0) 
+    {
+        std::cerr << "Version error" << std::endl;
+    }
+    else
+    {
+        getline(file,line);
+        while(line[0]=='#' ){continue;}
+        getline(file,line);
+        ss << line;
+        ss >> width >> height;
+        int array[width][height];
+        ss << file.rdbuf();             //https://stackoverflow.com/questions/8126815/how-to-read-in-data-from-a-pgm-file-in-c
+        for (size_t i = 0; i < width; i++)
+        {
+            for (size_t j = 0; j < height; j++)
+            {
+                ss >> array[i][j];
+            }
+        }
+    }
 
 
 }
