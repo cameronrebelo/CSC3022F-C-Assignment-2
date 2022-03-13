@@ -3,6 +3,8 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include "extractor.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -35,71 +37,65 @@ int main(int argc, char* argv[])
             frameHeight = stoi(std::string(argv[i+2]));
             i += 3;
         }
-        if(std::string(argv[i]) == "-w")
-        {
-            std::cout << argv[i] << std::endl;
-            std::cout << argv[i+1] << std::endl;
-            std::cout << argv[i+2] << std::endl;
-
-                // std::cout << operation << std::endl;
-                std::string writeName(argv[i+2]);
-                std::cout << writeName << std::endl;
-                std::vector<std::string> temp;
-                // temp.push_back(operation);
-                // temp.push_back(writeName);
-            std::string operation = argv[i+1];
-            std::string writeFileName = argv[i+2];
+        if (std::string(argv[i]) == "-w")
+        { 
+            std::string operation = argv[i + 1];
+            std::string writeFileName = argv[i + 2];
             std::vector<std::string> temp = {operation, writeFileName};
             writeOptions.push_back(temp);
-            // writeOptions.push_back(writeFileName);
-
             i += 3;
         }
-
     }
 
-    std::cout << filename << std::endl;
-    std::cout << beginX << std::endl;
-    std::cout << beginY << std::endl;
-    std::cout << endX << std::endl;
-    std::cout << endY << std::endl;
-    std::cout << frameHeight << std::endl;
-    std::cout << frameWidth << std::endl;
+    // std::cout << filename << std::endl;
+    // std::cout << beginX << std::endl;
+    // std::cout << beginY << std::endl;
+    // std::cout << endX << std::endl;
+    // std::cout << endY << std::endl;
+    // std::cout << frameHeight << std::endl;
+    // std::cout << frameWidth << std::endl;
 
-    for (size_t i = 0; i < writeOptions.size(); ++i)
-    {
-        std::cout << writeOptions[i][0] << std::endl;
-        std::cout << writeOptions[i][1] << std::endl;
-    }
+    // for (size_t i = 0; i < writeOptions.size(); ++i)
+    // {
+    //     std::cout << writeOptions[i][0] << std::endl;
+    //     std::cout << writeOptions[i][1] << std::endl;
+    // }
     
 
     std::string line = "";
-    std::ifstream file(filename);
+    std::ifstream file(filename, std::ios::binary);
     std::stringstream ss;
     int width,height;
 
     getline(file,line);
-    if(line.compare("P2") != 0) 
+    // std::cout << line << std::endl;
+    if(line.compare("P5") != 0) 
     {
         std::cerr << "Version error" << std::endl;
     }
     else
     {
         getline(file,line);
-        while(line[0]=='#' ){continue;}
-        getline(file,line);
+        // std::cout << line << std::endl;   
+        while(line[0]=='#' ){getline(file,line);}
+        // std::cout << line << std::endl;   
         ss << line;
         ss >> width >> height;
-        int array[width][height];
-        ss << file.rdbuf();             //https://stackoverflow.com/questions/8126815/how-to-read-in-data-from-a-pgm-file-in-c
+        // std::cout << width << " " << height << std::endl;   
+        unsigned char fileRead[width][height];
+        getline(file,line);
+        ss << file.rdbuf();          //https://stackoverflow.com/questions/8126815/how-to-read-in-data-from-a-pgm-file-in-c
         for (size_t i = 0; i < width; i++)
         {
+            // std::cout << i << std::endl; 
             for (size_t j = 0; j < height; j++)
             {
-                ss >> array[i][j];
+                ss >> fileRead[i][j];
             }
         }
+        std::cout << "done" << std::endl;
     }
-
+    file.close();
 
 }
+
