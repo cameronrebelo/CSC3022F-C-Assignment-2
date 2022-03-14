@@ -98,104 +98,58 @@ int main(int argc, char* argv[])
                 file >> fileRead[i][j];
             }
         }
-        // pixelPtr = & fileRead;
-        RBLCAM001::FrameSequence fs;
-        for (size_t i = beginX; i < endX; i++)
+        file.close();
+
+        for (size_t i = 0; i < writeOptions.size(); i++)
         {
-            
-            fs.insertFrame(RBLCAM001::image(i,i,frameWidth,frameHeight,fileRead));
-            std::cout << "adding" << std::endl;
+            RBLCAM001::FrameSequence fs;
+            for (size_t i = beginX; i < endX; i++)
+            {
+                fs.insertFrame(RBLCAM001::image(i, i, frameWidth, frameHeight, fileRead));
+                // std::cout << "adding" << std::endl;
+            }
+            fs.doOperation(writeOptions[i][0], writeOptions[i][1]);
+            fs.setHeight(frameHeight);
+            fs.setWidth(frameWidth);
+            // std::cout << fs.toString() << std::endl;
         }
+        
+
+        
     }
-    file.close();
+    
 }
 
-unsigned char** RBLCAM001::image(int beginX, int beginY, int width, int height, unsigned char * & array)
+unsigned char** RBLCAM001::image(int beginX, int beginY, int width, int height, unsigned char ** bigFrame)
 {
-    unsigned char** temp;
+    unsigned char** frame = new unsigned char*[height];
     int x,y;
-    std::cout << beginX << std::endl;
-    std::cout << beginY << std::endl;
-    std::cout << width << std::endl;
-    std::cout << height << std::endl;
+    // std::cout << beginX << std::endl;
+    // std::cout << beginY << std::endl;
+    // std::cout << width << std::endl;
+    // std::cout << height << std::endl;
+    // std::stringstream ss;
 
-
-    for (size_t i = beginY; i < (beginY+height); i++)
+    for (size_t i = 0; i < height; i++)
     {
-        // std::cout << "i:"+i << std::endl;
-        for (size_t j = beginX; j < (beginX+width); j++)
+        frame[i] = new unsigned char[width];
+        // ss << i;
+        // std::string t;
+        // ss >> t;
+        // std::cout << i << std::endl;
+
+        for (size_t j = 0; j < width; j++)
         {
-            std::cout << array[i*width+j] << std::endl;
+            // std::cout << j << std::endl;
+            // std::cout << bigFrame[i][j] << std::endl;
             // std::cout << "j:"+j << std::endl;
+            frame[i][j] = bigFrame[beginY+i][beginX+j];
+            //  std::cout << int(frame[i][j]) << std::endl;
 
-
-            // temp[x][y] = array[i*width+j];
-            x++;
+            // x++;
         }
-        y++;
+        // y++;
         // std::cout << "success" << std::endl;
     }
-    return temp;    
+    return frame;    
 }
-
-/*
-void addUnrev(unsigned char**&frame)
-    {
-        int newX = x1;
-        int newY = y1;
-
-        int i_count = 0;
-        int j_count = 0;
-
-        int num = 1;
-        string fname = "sequence2";
-
-        //frame = new unsigned char * [frameH];
-
-        while((newX+frameH)<=height && ((newY+frameW)<=width) && newX<x2 && newY<y2)
-        {
-            i_count = 0;
-            j_count = 0;
-            //i_count & j_count used for the new frame
-            for(int i = 0; i<height; i++)
-            {
-                frame[i_count] = new unsigned char[frameW];
-                for(int j = 0; j<width; j++)
-                {
-                    if(i>=newX && i<newX+frameH)
-                    {
-                        if(j>=newY && j<newY+frameW)
-                        {
-                            if(n==true)
-                            {
-                                frame[i_count][j_count] = pixel_array[i][j];
-                            }
-                            else if(in== true)
-                            {
-                                frame[i_count][j_count] = 255-(pixel_array[i][j]);
-                            }
-
-                            j_count++;
-                        }
-                        else if (j>=newY+frameW)
-                        {
-                            i_count++;
-                            j_count = 0;
-                            break;
-                        }
-                    }
-                }
-                if (i>=newX+frameH)
-                {
-                    break;
-                }
-            }
-            imageSequence.push_back(frame);
-            newX++;
-            newY++;
-
-            printSingleFrame(num, frame);
-            num++;
-        }
-    }
-*/
