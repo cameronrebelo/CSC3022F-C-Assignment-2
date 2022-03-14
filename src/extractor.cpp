@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[])
 {
-    std::cout << "um hi" << std::endl;
+    std::cout << "start" << std::endl;
     std::string filename = argv[1];
     int beginX; 
     int beginY; 
@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
             i += 3;
         }
     }
+    std::cout << "cli ok" << std::endl;
 
     // std::cout << filename << std::endl;
     // std::cout << beginX << std::endl;
@@ -67,7 +68,9 @@ int main(int argc, char* argv[])
     file.unsetf(std::ios_base::skipws);
     std::stringstream ss;
     int width,height;
+
     unsigned char *** pixelPtr;
+
     getline(file,line);
     // std::cout << line << std::endl;
     if(line.compare("P5") != 0) 
@@ -76,55 +79,65 @@ int main(int argc, char* argv[])
     }
     else
     {
+
         getline(file,line);
-        // std::cout << line << std::endl;   
         while(line[0]=='#' ){getline(file,line);}
-        // std::cout << line << std::endl;   
         ss << line;
         ss >> width >> height;
-        // std::cout << width << " " << height << std::endl;   
-        unsigned char ** fileRead;
-        getline(file,line);
-        ss << file.rdbuf();          //https://stackoverflow.com/questions/8126815/how-to-read-in-data-from-a-pgm-file-in-c
-        for (size_t i = 0; i < width; i++)
+        int length = width*height;
+        getline(file >> std::ws,line);
+        unsigned char ** fileRead = new unsigned char *[height];
+        // file.read(reinterpret_cast<char *>(fileRead), length);
+
+        // ss << file.rdbuf();          //https://stackoverflow.com/questions/8126815/how-to-read-in-data-from-a-pgm-file-in-c
+        for (size_t i = 0; i < height; i++)
         {
-            // std::cout << i << std::endl; 
-            for (size_t j = 0; j < height; j++)
+            fileRead[i] = new unsigned char[width];
+            for (size_t j = 0; j < width; j++)
             {
-                ss >> fileRead[i][j];
+                file >> fileRead[i][j];
             }
         }
-        std::cout << "done" << std::endl;
-        pixelPtr = & fileRead;
-    RBLCAM001::FrameSequence fs;
-    for (size_t i = beginX; i < endX; i++)
-    {
-        fs.insertFrame(RBLCAM001::image(i,i,frameWidth,frameHeight,fileRead));
-    }
+        // pixelPtr = & fileRead;
+        RBLCAM001::FrameSequence fs;
+        for (size_t i = beginX; i < endX; i++)
+        {
+            
+            fs.insertFrame(RBLCAM001::image(i,i,frameWidth,frameHeight,fileRead));
+            std::cout << "adding" << std::endl;
+        }
     }
     file.close();
+}
 
-
-
-    
-
-    }
-
-unsigned char** RBLCAM001::image(int beginX, int beginY, int width, int height, unsigned char **&array)
+unsigned char** RBLCAM001::image(int beginX, int beginY, int width, int height, unsigned char * & array)
 {
     unsigned char** temp;
     int x,y;
-    for (size_t i = beginX; i < (beginX+width); i++)
+    std::cout << beginX << std::endl;
+    std::cout << beginY << std::endl;
+    std::cout << width << std::endl;
+    std::cout << height << std::endl;
+
+
+    for (size_t i = beginY; i < (beginY+height); i++)
     {
-        for (size_t j = beginY; j < (beginY+height); j++)
+        // std::cout << "i:"+i << std::endl;
+        for (size_t j = beginX; j < (beginX+width); j++)
         {
-            temp[x][y] = array[i][j];
-            y++;
+            std::cout << array[i*width+j] << std::endl;
+            // std::cout << "j:"+j << std::endl;
+
+
+            // temp[x][y] = array[i*width+j];
+            x++;
         }
-        x++;
+        y++;
+        // std::cout << "success" << std::endl;
     }
     return temp;    
 }
+
 /*
 void addUnrev(unsigned char**&frame)
     {
