@@ -4,6 +4,7 @@
 #include <utility>
 #include <cstring>
 #include <iostream>
+#include <vector>
 namespace RBLCAM001
 {
 
@@ -14,19 +15,25 @@ namespace RBLCAM001
 
     public:
         // Constructor and Destructor
-        FrameSequence() : imageSequence(std::vector<unsigned char>) {}
+        FrameSequence(void){}
         ~FrameSequence()
         {
-            for (size_t i = 0; i < imageSequence.size; i++)
+            for (size_t i = 0; i < imageSequence.size(); i++)
             {
                 if (imageSequence[i] != nullptr)
                 {
                     delete imageSequence[i];
+                    //go deeper
                 }
             }
         }
+
+        //Utilities
+        void insertFrame(unsigned char ** frame){
+            imageSequence.push_back(frame);
+        }
     };
 
-    std::vector<unsigned char**> image(int beginX, int beginY, int endX, int endY)
+    unsigned char** image(int beginX, int beginY, int endX, int endY, unsigned char ** & array){};
 }
 #endif

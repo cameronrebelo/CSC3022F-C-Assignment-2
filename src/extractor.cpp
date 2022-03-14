@@ -64,14 +64,15 @@ int main(int argc, char* argv[])
 
     std::string line = "";
     std::ifstream file(filename, std::ios::binary);
+    file.unsetf(std::ios_base::skipws);
     std::stringstream ss;
     int width,height;
-
+    unsigned char *** pixelPtr;
     getline(file,line);
     // std::cout << line << std::endl;
     if(line.compare("P5") != 0) 
     {
-        std::cerr << "Version error" << std::endl;
+        std::cerr << "error" << std::endl;
     }
     else
     {
@@ -82,7 +83,7 @@ int main(int argc, char* argv[])
         ss << line;
         ss >> width >> height;
         // std::cout << width << " " << height << std::endl;   
-        unsigned char fileRead[width][height];
+        unsigned char ** fileRead;
         getline(file,line);
         ss << file.rdbuf();          //https://stackoverflow.com/questions/8126815/how-to-read-in-data-from-a-pgm-file-in-c
         for (size_t i = 0; i < width; i++)
@@ -94,8 +95,94 @@ int main(int argc, char* argv[])
             }
         }
         std::cout << "done" << std::endl;
+        pixelPtr = & fileRead;
+    RBLCAM001::FrameSequence fs;
+    for (size_t i = beginX; i < endX; i++)
+    {
+        fs.insertFrame(RBLCAM001::image(i,i,frameWidth,frameHeight,fileRead));
+    }
     }
     file.close();
 
-}
 
+
+    
+
+    }
+
+unsigned char** RBLCAM001::image(int beginX, int beginY, int width, int height, unsigned char **&array)
+{
+    unsigned char** temp;
+    int x,y;
+    for (size_t i = beginX; i < (beginX+width); i++)
+    {
+        for (size_t j = beginY; j < (beginY+height); j++)
+        {
+            temp[x][y] = array[i][j];
+            y++;
+        }
+        x++;
+    }
+    return temp;    
+}
+/*
+void addUnrev(unsigned char**&frame)
+    {
+        int newX = x1;
+        int newY = y1;
+
+        int i_count = 0;
+        int j_count = 0;
+
+        int num = 1;
+        string fname = "sequence2";
+
+        //frame = new unsigned char * [frameH];
+
+        while((newX+frameH)<=height && ((newY+frameW)<=width) && newX<x2 && newY<y2)
+        {
+            i_count = 0;
+            j_count = 0;
+            //i_count & j_count used for the new frame
+            for(int i = 0; i<height; i++)
+            {
+                frame[i_count] = new unsigned char[frameW];
+                for(int j = 0; j<width; j++)
+                {
+                    if(i>=newX && i<newX+frameH)
+                    {
+                        if(j>=newY && j<newY+frameW)
+                        {
+                            if(n==true)
+                            {
+                                frame[i_count][j_count] = pixel_array[i][j];
+                            }
+                            else if(in== true)
+                            {
+                                frame[i_count][j_count] = 255-(pixel_array[i][j]);
+                            }
+
+                            j_count++;
+                        }
+                        else if (j>=newY+frameW)
+                        {
+                            i_count++;
+                            j_count = 0;
+                            break;
+                        }
+                    }
+                }
+                if (i>=newX+frameH)
+                {
+                    break;
+                }
+            }
+            imageSequence.push_back(frame);
+            newX++;
+            newY++;
+
+            printSingleFrame(num, frame);
+            num++;
+        }
+    }
+*/
