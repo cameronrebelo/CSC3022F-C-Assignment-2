@@ -16,7 +16,7 @@ namespace RBLCAM001
 
     public:
         // Constructor and Destructor
-        FrameSequence(void);
+        FrameSequence();
         ~FrameSequence();
 
         //Utilities

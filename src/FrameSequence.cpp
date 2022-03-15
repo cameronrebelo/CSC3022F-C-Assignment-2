@@ -7,69 +7,58 @@
 #include "extractor.h"
 
 
-// Constructor and Destructor
-RBLCAM001::FrameSequence::FrameSequence(void)
+// Constructor
+RBLCAM001::FrameSequence::FrameSequence()
 {
     width = 0;
     height = 0;
+    isReversed=false;
 }
+//Destructor
 RBLCAM001::FrameSequence::~FrameSequence()
 {
     for (size_t i = 0; i < imageSequence.size(); i++)
     {
-        if (imageSequence[i] != nullptr)
+        for (size_t j = 0; j < height; j++)
         {
-            delete imageSequence[i];
-            // go deeper
+            for (size_t k = 0; k < width; k++)
+            {
+                if (imageSequence[i] != nullptr)
+                {
+                    imageSequence[i][j][k] = 0;
+                }
+            }
+            delete imageSequence[i][j];
         }
+        delete imageSequence[i];
     }
 }
 
 // Utilities
+
+//Function to insert a frame into the vector
 void RBLCAM001::FrameSequence::insertFrame(unsigned char **frame)
 {
     imageSequence.push_back(frame);
 }
-void RBLCAM001::FrameSequence::setHeight(int h)
-{
-    height = h;
-}
-void RBLCAM001::FrameSequence::setWidth(int w)
-{
-    width = w;
-    std::cout << width << std::endl;
-}
 
+//setters for height and width
+void RBLCAM001::FrameSequence::setHeight(int h){height = h;}
+void RBLCAM001::FrameSequence::setWidth(int w){width = w;}
+
+//Function to choose which operation to be executed on the frames
 void RBLCAM001::FrameSequence::doOperation(std::string operation, std::string fileName)
 {
-    std::cout << "doing op" + operation << std::endl;
-
-    if (operation == "none")
-    {
-        std::cout << "doing op: none" << std::endl;
-    }
-    else if (operation == "invert")
-    {
-        std::cout << "doing op: invert" << std::endl;
-        invert();
-    }
-    else if (operation == "reverse")
-    {
-        std::cout << "doing op: reverse" << std::endl;
-        isReversed = true;
-    }
-    else if (operation == "reinvert")
-    {
-        std::cout << "doing op: reinvert" << std::endl;
-        isReversed = true;
-        invert();
-    }
+    if (operation == "none"){}
+    else if (operation == "invert"){invert();}
+    else if (operation == "reverse"){isReversed = true;}
+    else if (operation == "reinvert"){invert();}
     writeVector(fileName);
 }
 
+//inverts the pixel data
 void RBLCAM001::FrameSequence::invert()
 {
-    std::cout << "inverting" << std::endl;
     for (size_t i = 0; i < imageSequence.size(); i++)
     {
         for (size_t j = 0; j < height; j++)
@@ -81,13 +70,12 @@ void RBLCAM001::FrameSequence::invert()
             }
         }
     }
-    std::cout << "done inverting" << std::endl;
 }
 
+//writes the frame data to output pgm files with the supplied filename in order
 void RBLCAM001::FrameSequence::writeVector(std::string filename)
 {
     int count = 0;
-    std::cout << "writing" << std::endl;
     if (isReversed)
     {
         for (size_t i = imageSequence.size() - 1; i > -1; i--)
@@ -95,13 +83,14 @@ void RBLCAM001::FrameSequence::writeVector(std::string filename)
             char buffer[100];
             std::string fileNumber;
             std::stringstream ss;
-            ;
             std::string temp;
             temp = sprintf(buffer, "%04d", count);
             ss << buffer;
             ss >> fileNumber;
+            
             std::string fileFinal = filename + fileNumber + ".pgm";
             std::ofstream out(fileFinal, std::ios::binary);
+            //begin writing the file
             out << "P5" << std::endl;
             out << "#RBLCAM001 Extractor" << std::endl;
             out << width << "  " << height << std::endl;
@@ -119,22 +108,18 @@ void RBLCAM001::FrameSequence::writeVector(std::string filename)
     }
     else
     {
-        std::cout << "else" << std::endl;
         for (size_t i = 0; i < imageSequence.size(); i++)
         {
             char buffer[100];
-
-            // std::cout <<"fileopened" << std::endl;
             std::string fileNumber;
             std::stringstream ss;
-            ;
             std::string temp;
             temp = sprintf(buffer, "%04d", count);
             ss << buffer;
             ss >> fileNumber;
             std::string fileFinal = filename + fileNumber + ".pgm";
             std::ofstream out(fileFinal, std::ios::binary);
-
+            //begin writing the file
             out << "P5" << std::endl;
             out << "#RBLCAM001 Extractor" << std::endl;
             out << width << " " << height << std::endl;
@@ -143,8 +128,6 @@ void RBLCAM001::FrameSequence::writeVector(std::string filename)
             {
                 for (size_t k = 0; k < width; k++)
                 {
-                    // std::cout <<j<<" "<< k<< " in loop" << std::endl;
-
                     out << imageSequence[i][j][k];
                 }
             }
@@ -152,20 +135,4 @@ void RBLCAM001::FrameSequence::writeVector(std::string filename)
             count++;
         }
     }
-}
-
-std::string RBLCAM001::FrameSequence::toString()
-{
-    std::string temp = "";
-    for (size_t i = 0; i < imageSequence.size(); i++)
-    {
-        for (size_t j = 0; j < height; j++)
-        {
-            for (size_t k = 0; k < width; k++)
-            {
-                temp += imageSequence[i][j][k] + "\n";
-            }
-        }
-    }
-    return temp;
 }
