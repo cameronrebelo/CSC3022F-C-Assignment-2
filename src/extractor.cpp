@@ -28,14 +28,14 @@ int main(int argc, char* argv[])
             beginY = stoi(std::string(argv[i+2]));
             endX = stoi(std::string(argv[i+3]));
             endY = stoi(std::string(argv[i+4]));
-            i+=5;
+            
         }
         if(std::string(argv[i]) == "-s")
         {
             
             frameWidth = stoi(std::string(argv[i+1]));
             frameHeight = stoi(std::string(argv[i+2]));
-            i += 3;
+            
         }
         if (std::string(argv[i]) == "-w")
         { 
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
             std::string writeFileName = argv[i + 2];
             std::vector<std::string> temp = {operation, writeFileName};
             writeOptions.push_back(temp);
-            i += 3;
+           
         }
     }
     std::cout << "cli ok" << std::endl;
@@ -102,16 +102,26 @@ int main(int argc, char* argv[])
 
         for (size_t i = 0; i < writeOptions.size(); i++)
         {
+
+            std::cout << writeOptions.size() << std::endl;
             RBLCAM001::FrameSequence fs;
-            for (size_t i = beginX; i < endX; i++)
-            {
-                fs.insertFrame(RBLCAM001::image(i, i, frameWidth, frameHeight, fileRead));
-                // std::cout << "adding" << std::endl;
-            }
-            fs.doOperation(writeOptions[i][0], writeOptions[i][1]);
             fs.setHeight(frameHeight);
             fs.setWidth(frameWidth);
-            // std::cout << fs.toString() << std::endl;
+            int x,y=beginX,beginY;
+            while(x!=endX&& y!=endY)
+            {
+                fs.insertFrame(RBLCAM001::image(x, y, frameWidth, frameHeight, fileRead));
+                if(x<endX){x++;}
+                if(y<endY){y++;}
+                if(endX<x){x--;}
+                if(endY<y){y--;}
+            }
+            fs.doOperation(writeOptions[i][0], writeOptions[i][1]);
+            // for (size_t i = beginX; i < endX; i++)
+            // {
+            //     fs.insertFrame(RBLCAM001::image(i, i, frameWidth, frameHeight, fileRead));
+            //     // std::cout << "adding" << std::endl;
+            // }
         }
         
 

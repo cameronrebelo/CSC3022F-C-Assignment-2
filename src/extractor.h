@@ -13,8 +13,8 @@ namespace RBLCAM001
     {
     private:
         std::vector<unsigned char **> imageSequence;
-        int width,height;
-        bool isReversed;
+        int width,height = 0;
+        bool isReversed = false;
 
     public:
         // Constructor and Destructor
@@ -40,10 +40,13 @@ namespace RBLCAM001
         }
         void setWidth(int w){
             width=w;
+            std::cout << width << std::endl;
+            
         }
 
         void doOperation(std::string operation, std::string fileName){
-            std::cout <<"doing op" << std::endl;
+            std::cout <<"doing op" + operation << std::endl;
+            
             if(operation=="none"){
                 std::cout <<"doing op: none" << std::endl;
             }
@@ -64,38 +67,38 @@ namespace RBLCAM001
         }
 
         void invert(){
+            std::cout <<"inverting" << std::endl;
             for (size_t i = 0; i < imageSequence.size(); i++)
             {
                 for (size_t j = 0; j < height; j++)
                 {
                     for (size_t k = 0; k < width; k++)
                     {
-                        char temp = imageSequence[i][j][k];
-                        imageSequence[i][j][k] = char(255 - int(temp));
+                        int temp = int(imageSequence[i][j][k]);
+                        imageSequence[i][j][k] = char(255 - temp);
                     }   
                 }
             }
-        }
-
-        void reverse(){
-
+            std::cout <<"done inverting" << std::endl;
         }
 
         void writeVector(std::string filename)
         {
+            int count = 0;
+            std::cout <<"writing" << std::endl;
             if (isReversed)
             {
                 for (size_t i = imageSequence.size() - 1; i > -1; i--)
                 {
                     char buffer[100];
-                    int count = 0;
                     std::string fileNumber;
                     std::stringstream ss;;
                     std::string temp;
                     temp = sprintf(buffer,"%04d", count);
                     ss << buffer;
                     ss >> fileNumber;
-                    std::ofstream out(filename + fileNumber + ".pgm", std::ios::binary);
+                    std::string fileFinal = filename+fileNumber+".pgm";
+                    std::ofstream out(fileFinal, std::ios::binary); 
                     out << "P5" << std::endl;
                     out << "#RBLCAM001 Extractor" << std::endl;
                     out << width << "  " << height << std::endl;
@@ -107,33 +110,41 @@ namespace RBLCAM001
                             out << imageSequence[i][j][k];
                         }
                     }
+                    out.close();
                     count++;
                 }
             }
             else
             {
+                std::cout <<"else" << std::endl;
                 for (size_t i = 0; i < imageSequence.size(); i++)
                 {
                     char buffer[100];
-                    int count = 0;
+                    
+                    // std::cout <<"fileopened" << std::endl;
                     std::string fileNumber;
                     std::stringstream ss;;
                     std::string temp;
                     temp = sprintf(buffer,"%04d", count);
                     ss << buffer;
                     ss >> fileNumber;
-                    std::ofstream out(filename + fileNumber + ".pgm", std::ios::binary);
+                    std::string fileFinal = filename+fileNumber+".pgm";
+                    std::ofstream out(fileFinal, std::ios::binary);
+
                     out << "P5" << std::endl;
                     out << "#RBLCAM001 Extractor" << std::endl;
-                    out << width << "  " << height << std::endl;
+                    out << width << " " << height << std::endl;
                     out << "255" << std::endl;
                     for (size_t j = 0; j < height; j++)
                     {
                         for (size_t k = 0; k < width; k++)
                         {
+                        // std::cout <<j<<" "<< k<< " in loop" << std::endl;
+
                             out << imageSequence[i][j][k];
                         }
                     }
+                    out.close();
                     count++;
                 }
             }
