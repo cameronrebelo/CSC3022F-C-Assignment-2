@@ -1,3 +1,5 @@
+GLOBALIGNORE=sloan_image.pgm
+
 extractor: FrameSequence.o extractor.o
 	g++ bin/FrameSequence.o bin/extractor.o -o extractor -std=c++2a
  
@@ -12,4 +14,7 @@ test:
 
 clean:
 	@rm -f bin/*.o
-	@rm extractor	
+	@rm extractor
+	mv sloan_image.pgm data
+	@rm *.pgm
+	mv data/sloan_image.pgm .
